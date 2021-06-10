@@ -6,7 +6,7 @@
 
 -------------------------------------------------------------------------
 -- DESCRIPTION: This file contains an implementation of the control unit
--- for the single cycle MIPS processor.
+-- for the MIPS processor.
 --
 -- NOTES:
 --

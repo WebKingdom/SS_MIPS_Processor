@@ -1,17 +1,16 @@
 -------------------------------------------------------------------------
--- Henry Duwe
--- Department of Electrical and Computer Engineering
+-- Skeleton for MIPS processor by Henry Duwe, full implementation by
+-- Soma Szabo
 -- Iowa State University
 -------------------------------------------------------------------------
 
--- MIPS_Processor.vhd
 -------------------------------------------------------------------------
--- DESCRIPTION: This file contains a skeleton of a MIPS_Processor
--- implementation. Full implementation by Soma Szabo
-
--- 01/29/2019 by H3::Design created.
+-- DESCRIPTION: This file contains a MIPS 5 stage software scheduled
+-- pipeline processor.
+-- 
+-- NOTES:
+-- 
 -------------------------------------------------------------------------
-
 
 library IEEE;
 use IEEE.std_logic_1164.all;
@@ -30,7 +29,6 @@ entity MIPS_Processor is
   ); -- Hook this up to the output of the ALU. It is important for synthesis that you have this output that can effectively be impacted by all other components so they are not optimized away.
 
 end  MIPS_Processor;
-
 
 architecture structure of MIPS_Processor is
 

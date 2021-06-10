@@ -6,10 +6,10 @@
 
 -------------------------------------------------------------------------
 -- DESCRIPTION: This file contains an implementation of a custom ALU with
--- for the MIPS single cycle processor.
---
+-- for the MIPS processor.
+-- 
 -- NOTES:
---
+-- 
 -------------------------------------------------------------------------
 
 -- library declarations
