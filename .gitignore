@@ -75,3 +75,6 @@ cov*/
 transcript*
 sc_dpiheader.h
 vsim.dbg
+
+# Miscellaneous 
+*.DS_Store
