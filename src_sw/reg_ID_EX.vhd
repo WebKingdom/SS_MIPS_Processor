@@ -23,6 +23,7 @@ entity reg_ID_EX is
     i_RegRd0    : in std_logic_vector(31 downto 0);
     i_RegRd1    : in std_logic_vector(31 downto 0);
     i_ImmExt    : in std_logic_vector(31 downto 0);
+    i_InstRs    : in std_logic_vector(4 downto 0);
     i_InstRt    : in std_logic_vector(4 downto 0);
     i_InstRd    : in std_logic_vector(4 downto 0);
     i_ALUSrc    : in std_logic;
@@ -40,6 +41,7 @@ entity reg_ID_EX is
     o_RegRd0    : out std_logic_vector(31 downto 0);
     o_RegRd1    : out std_logic_vector(31 downto 0);
     o_ImmExt    : out std_logic_vector(31 downto 0);
+    o_InstRs    : out std_logic_vector(4 downto 0);
     o_InstRt    : out std_logic_vector(4 downto 0);
     o_InstRd    : out std_logic_vector(4 downto 0);
     o_ALUSrc    : out std_logic;
@@ -67,6 +69,7 @@ begin
       o_RegRd0    <= x"00000000";
       o_RegRd1    <= x"00000000";
       o_ImmExt    <= x"00000000";
+      o_InstRs    <= "00000";
       o_InstRt    <= "00000";
       o_InstRd    <= "00000";
       o_ALUSrc    <= '0';
@@ -85,6 +88,7 @@ begin
       o_RegRd0    <= i_RegRd0;
       o_RegRd1    <= i_RegRd1;
       o_ImmExt    <= i_ImmExt;
+      o_InstRs    <= i_InstRs;
       o_InstRt    <= i_InstRt;
       o_InstRd    <= i_InstRd;
       o_ALUSrc    <= i_ALUSrc;

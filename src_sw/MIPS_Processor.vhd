@@ -66,9 +66,9 @@ architecture structure of MIPS_Processor is
   signal s_NextInstAddr : std_logic_vector(N-1 downto 0); -- use this signal as your intended final instruction memory address input.
   signal s_Inst_F       : std_logic_vector(N-1 downto 0); -- Instruction signal, fetch
   signal s_Inst_D       : std_logic_vector(N-1 downto 0); -- Instruction signal, decode
-  signal s_Inst_E_rs    : std_logic_vector(4 downto 0);   -- Instruction signal for rs, execute
-  signal s_Inst_E_rt    : std_logic_vector(4 downto 0);   -- Instruction signal for rt, execute
-  signal s_Inst_E_rd    : std_logic_vector(4 downto 0);   -- Instruction signal for rd, execute
+  signal s_InstRs_E     : std_logic_vector(4 downto 0);   -- Instruction signal for rs, execute
+  signal s_InstRt_E     : std_logic_vector(4 downto 0);   -- Instruction signal for rt, execute
+  signal s_InstRd_E     : std_logic_vector(4 downto 0);   -- Instruction signal for rd, execute
 
   -- Required halt signal -- for simulation
   signal s_Halt_D       : std_logic;  -- this signal indicates to the simulation that intended program execution has completed
@@ -130,6 +130,7 @@ architecture structure of MIPS_Processor is
   signal s_RegRdOut0_D  : std_logic_vector(N-1 downto 0);
   signal s_RegRdOut0_E  : std_logic_vector(N-1 downto 0);
   signal s_ALUiB        : std_logic_vector(N-1 downto 0);
+  signal s_ALUiA        : std_logic_vector(N-1 downto 0);
   signal s_ImmExt_D     : std_logic_vector(N-1 downto 0);
   signal s_ImmExt_E     : std_logic_vector(N-1 downto 0);
 
@@ -141,6 +142,10 @@ architecture structure of MIPS_Processor is
 
   -- ALU carry out
   signal s_Cout       : std_logic;
+
+  -- Forwarding Unit signals
+  signal s_ForwardA   : std_logic_vector(1 downto 0);
+  signal s_ForwardB   : std_logic_vector(1 downto 0);
 
   -- PC signals
   signal s_PCin       : std_logic_vector(N-1 downto 0);
@@ -211,6 +216,19 @@ architecture structure of MIPS_Processor is
     );
   end component;
 
+  component forward_unit is
+    port(
+      i_RegWr_M     : in std_logic;
+      i_RegWr_W     : in std_logic;
+      i_InstRs_E    : in std_logic_vector(4 downto 0);
+      i_InstRt_E    : in std_logic_vector(4 downto 0);
+      i_RegWrAddr_M : in std_logic_vector(4 downto 0);
+      i_RegWrAddr_W : in std_logic_vector(4 downto 0);
+      o_ForwardA    : out std_logic_vector(1 downto 0);
+      o_ForwardB    : out std_logic_vector(1 downto 0);
+    );
+  end component;
+
   -- Pipeline registers
   component reg_IF_ID is
     generic(N : integer := 32);
@@ -231,6 +249,7 @@ architecture structure of MIPS_Processor is
       i_RegRd0    : in std_logic_vector(31 downto 0);
       i_RegRd1    : in std_logic_vector(31 downto 0);
       i_ImmExt    : in std_logic_vector(31 downto 0);
+      i_InstRs    : in std_logic_vector(4 downto 0);
       i_InstRt    : in std_logic_vector(4 downto 0);
       i_InstRd    : in std_logic_vector(4 downto 0);
       i_ALUSrc    : in std_logic;
@@ -248,6 +267,7 @@ architecture structure of MIPS_Processor is
       o_RegRd0    : out std_logic_vector(31 downto 0);
       o_RegRd1    : out std_logic_vector(31 downto 0);
       o_ImmExt    : out std_logic_vector(31 downto 0);
+      o_InstRs    : out std_logic_vector(4 downto 0);
       o_InstRt    : out std_logic_vector(4 downto 0);
       o_InstRd    : out std_logic_vector(4 downto 0);
       o_ALUSrc    : out std_logic;
@@ -434,6 +454,7 @@ begin
     i_RegRd0    => s_RegRdOut0_D,
     i_RegRd1    => s_DMemData_D,
     i_ImmExt    => s_ImmExt_D,
+    i_InstRs    => s_Inst_D(25 downto 21),
     i_InstRt    => s_Inst_D(20 downto 16),
     i_InstRd    => s_Inst_D(15 downto 11),
     i_ALUSrc    => s_ALUSrc_D,
@@ -451,8 +472,9 @@ begin
     o_RegRd0    => s_RegRdOut0_E,
     o_RegRd1    => s_DMemData_E,
     o_ImmExt    => s_ImmExt_E,
-    o_InstRt    => s_Inst_E_rt,
-    o_InstRd    => s_Inst_E_rd,
+    o_InstRs    => s_InstRs_E,
+    o_InstRt    => s_InstRt_E,
+    o_InstRd    => s_InstRd_E,
     o_ALUSrc    => s_ALUSrc_E,
     o_RegDst    => s_RegDst_E,
     o_ALUCtrl   => s_ALUControl_E,
@@ -466,12 +488,32 @@ begin
     o_LRCtl     => s_LRCtl_E
   );
 
-  -- Select reg Rd_Out1 or immediate for ALU (i_B)
-  s_ALUiB <= s_DMemData_E when (s_ALUSrc_E = '0') else s_ImmExt_E;
+  -- Forwarding unit
+  ForwardUnit: forward_unit port map(
+    i_RegWr_M     => s_regWr_M,
+    i_RegWr_W     => s_regWr_W,
+    i_InstRs_E    => s_InstRs_E,
+    i_InstRt_E    => s_InstRt_E,
+    i_RegWrAddr_M => s_RegWrAddr_M,
+    i_RegWrAddr_W => s_RegWrAddr_W,
+    o_ForwardA    => s_ForwardA,
+    o_ForwardB    => s_ForwardB
+  );
+  
+  -- Select input for ALU (i_A)
+  s_ALUiA <= s_RegRdOut0_E when (s_ForwardA = "00") else
+             s_DMemAddr_M  when (s_ForwardA = "01") else
+             s_RegWrData_W;
+
+  -- Select reg Rd_Out1, immediate, or forwarded data for ALU (i_B)
+  s_ALUiB <= s_ImmExt_E   when (s_ALUSrc_E = '1') else
+             s_DMemData_E when (s_ForwardB = "00") else
+             s_DMemAddr_M when (s_ForwardB = "01") else
+             s_RegWrData_W;
 
   -- Select s_RegWrAddr (reg file write addr) based on s_RegDst
-  s_RegWrAddr_E <= s_Inst_E_rt when (s_RegDst_E = "00") else
-                   s_Inst_E_rd when (s_RegDst_E = "01") else
+  s_RegWrAddr_E <= s_InstRt_E when (s_RegDst_E = "00") else
+                   s_InstRd_E when (s_RegDst_E = "01") else
                    "11111";
 
   -- ALU mapping with shifter embedded
