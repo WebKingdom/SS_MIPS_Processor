@@ -7,7 +7,7 @@
 -- barrel_shift.vhd
 -------------------------------------------------------------------------
 -- DESCRIPTION: This file contains an implementation of the barrel 
--- shifter for ALU in the MIPS single cycle processor
+-- shifter for ALU in the MIPS processor
 --
 -- The barrel shifter supports 2^5-1 shifts left or right logical or
 -- arithmetic

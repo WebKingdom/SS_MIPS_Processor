@@ -6,7 +6,7 @@
 
 -------------------------------------------------------------------------
 -- DESCRIPTION: This file contains a test bench for the custom ALU for
--- the single cycle MIPS processor.
+-- the MIPS processor.
 --
 -- NOTES:
 --
@@ -24,7 +24,7 @@ architecture mixed of tb_ALUCustom is
   -- Define the total clock period time
   constant cCLK_PER : time := gCLK_HPER * 2;
 
-  -- TODO: change component declaration as needed. TYPE MUST MATCH SIGNALS!
+  -- Change component declaration as needed. (Type must match signals.)
   component ALUCustom is
     generic(N : integer := 32);
     port(
@@ -40,7 +40,7 @@ architecture mixed of tb_ALUCustom is
     );
   end component;
 
-  -- TODO: Create/modify signals for all I/O of the file that you are testing
+  -- Create/modify signals for all I/O of the file that you are testing
   -- Input signals
   signal s_CLK          : std_logic;
 
@@ -57,7 +57,7 @@ architecture mixed of tb_ALUCustom is
 
 
 begin
-  -- TODO: Instantiate the component to test and wire all signals to the corresponding I/O
+  -- Instantiate the component to test and wire all signals to the corresponding I/O
   -- NOTE: map component to signals
   DUT0: ALUCustom
   port map(
@@ -81,33 +81,33 @@ begin
     wait for gCLK_HPER;
   end process;
 
-  -- TODO: create/modify test cases
+  -- Test cases
   p_TB: process
   begin
     -- Initialize inputs
-    s_iA					<= x"00000000";
-    s_iB					<= x"00000000";
-    s_iShamt			<= "00000";
+    s_iA          <= x"00000000";
+    s_iB          <= x"00000000";
+    s_iShamt      <= "00000";
     s_iLRCtl      <= '0';
-    s_iALUControl	<= "00000";
+    s_iALUControl <= "00000";
     wait for cCLK_PER;
 
     -- s_iA and s_iB
-    s_iA					<= x"80000001";
-    s_iB					<= x"00000000";
-    s_iALUControl	<= "00000";
+    s_iA          <= x"80000001";
+    s_iB          <= x"00000000";
+    s_iALUControl <= "00000";
     wait for cCLK_PER;
 
     -- s_iA and s_iB
-    s_iA					<= x"80000001";
-    s_iB					<= x"7FFFFFFE";
-    s_iALUControl	<= "00000";
+    s_iA          <= x"80000001";
+    s_iB          <= x"7FFFFFFE";
+    s_iALUControl <= "00000";
     wait for cCLK_PER;
 
     -- s_iA and s_iB
-    s_iA					<= x"80000001";
-    s_iB					<= x"FFFFFFFF";
-    s_iALUControl	<= "00000";
+    s_iA          <= x"80000001";
+    s_iB          <= x"FFFFFFFF";
+    s_iALUControl <= "00000";
     wait for cCLK_PER;
 
     -- s_iA or s_iB

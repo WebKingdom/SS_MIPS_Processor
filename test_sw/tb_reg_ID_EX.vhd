@@ -24,7 +24,7 @@ architecture mixed of tb_reg_ID_EX is
   -- Define the total clock period time
   constant cCLK_PER : time := gCLK_HPER * 2;
 
-  -- TODO: change component declaration as needed. TYPE MUST MATCH SIGNALS!
+  -- Change component declaration as needed. (Type must match signals.)
   component reg_ID_EX is
     port(
     i_CLK       : in std_logic;
@@ -66,7 +66,7 @@ architecture mixed of tb_reg_ID_EX is
   );
   end component;
 
-  -- TODO: Create/modify signals for all I/O of the file that you are testing
+  -- Create/modify signals for all I/O of the file that you are testing
   -- Input signals
   signal s_CLK        : std_logic;
   signal s_iRST       : std_logic;
@@ -108,7 +108,7 @@ architecture mixed of tb_reg_ID_EX is
 
 
 begin
-  -- TODO: Instantiate the component to test and wire all signals to the corresponding I/O
+  -- Instantiate the component to test and wire all signals to the corresponding I/O
   -- NOTE: map component to signals
   DUT0: reg_ID_EX
   port map(
@@ -159,7 +159,7 @@ begin
     wait for gCLK_HPER;
   end process;
 
-  -- TODO: create/modify test cases
+  -- Test cases
   p_TB: process
   begin
     -- Initialize/reset inputs

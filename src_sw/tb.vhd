@@ -21,18 +21,18 @@ use std.env.all;                -- For hierarchical/external signals
 use std.textio.all;             -- For basic I/O
 
 entity tb is
---Generic for half of the clock cycle period
+-- Generic for half of the clock cycle period
   generic(gCLK_HPER   : time := 10 ns;
           N           : integer := 32);  
 end tb;
 
 architecture mixed of tb is
 
---Define the total clock period time
+-- Define the total clock period time
 constant cCLK_PER  : time := gCLK_HPER * 2;
 
---We will be making an instance of the file that we are testing
---TODO: Provide the appropriate port declarations for your processor
+-- We will be making an instance of the file that we are testing
+-- Provide the appropriate port declarations for your processor
 component MIPS_processor is
   generic (N : integer);
   port(iCLK            : in std_logic;
@@ -53,7 +53,7 @@ begin
 
 
 
--- TODO: Make an instance of the component to test and wire all signals to the corresponding
+-- Make an instance of the component to test and wire all signals to the corresponding
 -- input or output.
   MyMips: MIPS_processor
   generic map(N      => N)
