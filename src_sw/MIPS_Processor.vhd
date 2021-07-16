@@ -225,7 +225,7 @@ architecture structure of MIPS_Processor is
       i_RegWrAddr_M : in std_logic_vector(4 downto 0);
       i_RegWrAddr_W : in std_logic_vector(4 downto 0);
       o_ForwardA    : out std_logic_vector(1 downto 0);
-      o_ForwardB    : out std_logic_vector(1 downto 0);
+      o_ForwardB    : out std_logic_vector(1 downto 0)
     );
   end component;
 
@@ -499,7 +499,7 @@ begin
     o_ForwardA    => s_ForwardA,
     o_ForwardB    => s_ForwardB
   );
-  
+
   -- Select input for ALU (i_A)
   s_ALUiA <= s_RegRdOut0_E when (s_ForwardA = "00") else
              s_DMemAddr_M  when (s_ForwardA = "01") else
@@ -518,7 +518,7 @@ begin
 
   -- ALU mapping with shifter embedded
   ALUUnit: ALUCustom port map(
-    i_A           => s_RegRdOut0_E,
+    i_A           => s_ALUiA,
     i_B           => s_ALUiB,
     i_ALUControl  => s_ALUControl_E,
     i_Shamt       => s_Shamt_E,

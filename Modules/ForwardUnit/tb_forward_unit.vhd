@@ -33,7 +33,7 @@ architecture mixed of tb_forward_unit is
       i_RegWrAddr_M : in std_logic_vector(4 downto 0);
       i_RegWrAddr_W : in std_logic_vector(4 downto 0);
       o_ForwardA    : out std_logic_vector(1 downto 0);
-      o_ForwardB    : out std_logic_vector(1 downto 0);
+      o_ForwardB    : out std_logic_vector(1 downto 0)
     );
   end component;
 
@@ -56,7 +56,7 @@ architecture mixed of tb_forward_unit is
 begin
   -- Instantiate the component to test and wire all signals to the corresponding I/O
   -- NOTE: map component to signals
-  DUT0: ForwardUnit
+  DUT0: forward_unit
   port map(
     i_RegWr_M     => s_iRegWr_M,
     i_RegWr_W     => s_iRegWr_W,
@@ -140,7 +140,7 @@ begin
     s_iInstRt_E    <= "00011";
     s_iRegWrAddr_M <= "00011";
     s_iRegWrAddr_W <= "00011";
-    -- ForwardA = 01, ForwardB = 10
+    -- ForwardA = 01, ForwardB = 01
     wait for cCLK_PER;
 
     s_iRegWr_M     <= '1';
@@ -150,6 +150,15 @@ begin
     s_iRegWrAddr_M <= "00111";
     s_iRegWrAddr_W <= "00011";
     -- ForwardA = 01, ForwardB = 10
+    wait for cCLK_PER;
+
+    s_iRegWr_M     <= '1';
+    s_iRegWr_W     <= '1';
+    s_iInstRs_E    <= "10001";
+    s_iInstRt_E    <= "10001";
+    s_iRegWrAddr_M <= "11111";
+    s_iRegWrAddr_W <= "10001";
+    -- ForwardA = 10, ForwardB = 10
     wait for cCLK_PER;
 
     wait for cCLK_PER;
