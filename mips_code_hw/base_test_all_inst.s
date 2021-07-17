@@ -10,12 +10,7 @@ addi $zero, $t0, 0xE	# Should not modify anything
 addi $t1, $zero, 0x1	# $t1 = 0x1
 
 add $t2, $t0, $t1		# $t2 = 0xF
-
-subi $t3, $t2, 0xC 	# below is equavalent pseudoinstruction
-# addi $at, $zero, 0xC
-# nop
-# nop
-# sub $t3, $t2, $at
+subi $t3, $t2, 0xC
 
 addiu $t3, $t2, 0x7FFF	# $t3 = 0x800E, no overflow
 lui $t4, 0xFFFF			# $t4 = 0xFFFF0000
@@ -65,7 +60,6 @@ sll $s7, $s7, 16		# $s7 = 0xFFFE0000
 sra $s7, $s7, 31 		# $s7 = 0xFFFFFFFF
 
 sw $a3, ($t1)			# arr1[0] = 0x8FFF
-nop
 sw $s7, 4($t1)			# arr1[1] = 0xFFFFFFFF
 sw $s6, 8($t1)			# arr1[2] = 0x80000000
 
@@ -110,13 +104,8 @@ done_branching:
 	nop
 	
 jump_link:
-	# jal nops
-	nop
-	
 	addu $v0, $zero, $ra	# $at = $ra = 0x
-	
-	# subi $v0, $v0, 0xF0	# equivalent to below
-	addi $v0, $v0, -0xF0	# set jump address
+	subi $v0, $v0, 0xF0		# set jump address
 	nop
 	nop
 	

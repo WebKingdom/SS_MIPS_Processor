@@ -41,7 +41,6 @@ architecture structure of MIPS_Processor is
   signal s_DMemAddr_M   : std_logic_vector(N-1 downto 0); -- the final data memory address input, memory
   signal s_DMemAddr_W   : std_logic_vector(N-1 downto 0); -- data memory address input, write back
 
-  signal s_DMemData_D   : std_logic_vector(N-1 downto 0); -- data memory data input, decode
   signal s_DMemData_E   : std_logic_vector(N-1 downto 0); -- data memory data input, execute
   signal s_DMemData_M   : std_logic_vector(N-1 downto 0); -- the final data memory data input, memory
 
@@ -129,6 +128,8 @@ architecture structure of MIPS_Processor is
   -- ALU inputs
   signal s_RegRdOut0_D  : std_logic_vector(N-1 downto 0);
   signal s_RegRdOut0_E  : std_logic_vector(N-1 downto 0);
+  signal s_RegRdOut1_D  : std_logic_vector(N-1 downto 0);
+  signal s_RegRdOut1_E  : std_logic_vector(N-1 downto 0);
   signal s_ALUiB        : std_logic_vector(N-1 downto 0);
   signal s_ALUiA        : std_logic_vector(N-1 downto 0);
   signal s_ImmExt_D     : std_logic_vector(N-1 downto 0);
@@ -426,11 +427,11 @@ begin
     i_Rd_Addr0  => s_Inst_D(25 downto 21),
     i_Rd_Addr1  => s_Inst_D(20 downto 16),
     o_Rd_Out0   => s_RegRdOut0_D, -- rs
-    o_Rd_Out1   => s_DMemData_D   -- rt
+    o_Rd_Out1   => s_RegRdOut1_D   -- rt
   );
   -- Data memory write data = reg file read 1
-  s_Zero <= '1' when ((s_RegRdOut0_D = s_DMemData_D) and (s_ALUControl_D = "00101")) else
-            '1' when ((s_RegRdOut0_D /= s_DMemData_D) and (s_ALUControl_D = "00111")) else
+  s_Zero <= '1' when ((s_RegRdOut0_D = s_RegRdOut1_D) and (s_ALUControl_D = "00101")) else
+            '1' when ((s_RegRdOut0_D /= s_RegRdOut1_D) and (s_ALUControl_D = "00111")) else
             '0';
 
   Extender16t32: ext16t32 port map(
@@ -452,7 +453,7 @@ begin
     i_CLK       => iCLK,
     i_RST       => iRST,
     i_RegRd0    => s_RegRdOut0_D,
-    i_RegRd1    => s_DMemData_D,
+    i_RegRd1    => s_RegRdOut1_D,
     i_ImmExt    => s_ImmExt_D,
     i_InstRs    => s_Inst_D(25 downto 21),
     i_InstRt    => s_Inst_D(20 downto 16),
@@ -470,7 +471,7 @@ begin
     i_LRCtl     => s_LRCtl_D,
 
     o_RegRd0    => s_RegRdOut0_E,
-    o_RegRd1    => s_DMemData_E,
+    o_RegRd1    => s_RegRdOut1_E,
     o_ImmExt    => s_ImmExt_E,
     o_InstRs    => s_InstRs_E,
     o_InstRt    => s_InstRt_E,
@@ -500,16 +501,19 @@ begin
     o_ForwardB    => s_ForwardB
   );
 
+  -- Select data memory data to be forwarded
+  s_DMemData_E <= s_RegRdOut1_E when (s_ForwardB = "00") else
+                  s_DMemAddr_M  when (s_ForwardB = "01") else
+                  s_RegWrData_W;
+
   -- Select input for ALU (i_A)
   s_ALUiA <= s_RegRdOut0_E when (s_ForwardA = "00") else
              s_DMemAddr_M  when (s_ForwardA = "01") else
              s_RegWrData_W;
 
-  -- Select reg Rd_Out1, immediate, or forwarded data for ALU (i_B)
-  s_ALUiB <= s_ImmExt_E   when (s_ALUSrc_E = '1') else
-             s_DMemData_E when (s_ForwardB = "00") else
-             s_DMemAddr_M when (s_ForwardB = "01") else
-             s_RegWrData_W;
+  -- Select immediate or forwarded data for ALU (i_B)
+  s_ALUiB <= s_ImmExt_E when (s_ALUSrc_E = '1') else
+             s_DMemData_E;
 
   -- Select s_RegWrAddr (reg file write addr) based on s_RegDst
   s_RegWrAddr_E <= s_InstRt_E when (s_RegDst_E = "00") else
@@ -583,7 +587,7 @@ begin
 
   -- Select reg write data based on MemToReg and Jump And Link
   s_RegWrData_W <= s_DMemOut_W when (s_MemToReg_W = '1' and s_JumpAL_W = '0') else
-                 s_DMemAddr_W when (s_MemToReg_W = '0' and s_JumpAL_W = '0') else
-                 s_PCp4_W;
+                   s_DMemAddr_W when (s_MemToReg_W = '0' and s_JumpAL_W = '0') else
+                   s_PCp4_W;
 
 end structure;
