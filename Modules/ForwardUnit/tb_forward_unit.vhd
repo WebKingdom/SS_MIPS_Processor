@@ -26,14 +26,17 @@ architecture mixed of tb_forward_unit is
   -- Change component declaration as needed. (Type must match signals.)
   component forward_unit is
     port(
+      i_RegWr_E     : in std_logic;
       i_RegWr_M     : in std_logic;
       i_RegWr_W     : in std_logic;
       i_InstRs_E    : in std_logic_vector(4 downto 0);
       i_InstRt_E    : in std_logic_vector(4 downto 0);
+      i_RegWrAddr_E : in std_logic_vector(4 downto 0);
       i_RegWrAddr_M : in std_logic_vector(4 downto 0);
       i_RegWrAddr_W : in std_logic_vector(4 downto 0);
       o_ForwardA    : out std_logic_vector(1 downto 0);
-      o_ForwardB    : out std_logic_vector(1 downto 0)
+      o_ForwardB    : out std_logic_vector(1 downto 0);
+      o_ForwardALU  : out std_logic
     );
   end component;
 
@@ -41,16 +44,19 @@ architecture mixed of tb_forward_unit is
   -- Input signals
   signal s_CLK          : std_logic;
 
+  signal s_iRegWr_E     : std_logic;
   signal s_iRegWr_M     : std_logic;
   signal s_iRegWr_W     : std_logic;
   signal s_iInstRs_E    : std_logic_vector(4 downto 0);
   signal s_iInstRt_E    : std_logic_vector(4 downto 0);
+  signal s_iRegWrAddr_E : std_logic_vector(4 downto 0);
   signal s_iRegWrAddr_M : std_logic_vector(4 downto 0);
   signal s_iRegWrAddr_W : std_logic_vector(4 downto 0);
 
   -- Output signals
   signal s_oForwardA    : std_logic_vector(1 downto 0);
   signal s_oForwardB    : std_logic_vector(1 downto 0);
+  signal s_oForwardALU  : std_logic_vector(1 downto 0);
 
 
 begin
@@ -58,14 +64,17 @@ begin
   -- NOTE: map component to signals
   DUT0: forward_unit
   port map(
+    i_RegWr_E     => s_iRegWr_E,
     i_RegWr_M     => s_iRegWr_M,
     i_RegWr_W     => s_iRegWr_W,
     i_InstRs_E    => s_iInstRs_E,
     i_InstRt_E    => s_iInstRt_E,
+    i_RegWrAddr_E => s_iRegWrAddr_E,
     i_RegWrAddr_M => s_iRegWrAddr_M,
     i_RegWrAddr_W => s_iRegWrAddr_W,
     o_ForwardA    => s_oForwardA,
-    o_ForwardB    => s_oForwardB
+    o_ForwardB    => s_oForwardB,
+    o_ForwardALU  => s_oForwardALU
   );
 
   -- This process sets the clock value (low for gCLK_HPER, then high for gCLK_HPER).
@@ -81,84 +90,102 @@ begin
   p_TB: process
   begin
     -- Initialize inputs
+    s_iRegWr_E     <= '0';
     s_iRegWr_M     <= '0';
     s_iRegWr_W     <= '0';
     s_iInstRs_E    <= "00000";
     s_iInstRt_E    <= "00000";
+    s_iRegWrAddr_E <= "00000";
     s_iRegWrAddr_M <= "00000";
     s_iRegWrAddr_W <= "00000";
     wait for cCLK_PER;
 
+    s_iRegWr_E     <= '1';
     s_iRegWr_M     <= '1';
     s_iRegWr_W     <= '1';
     s_iInstRs_E    <= "00000";
     s_iInstRt_E    <= "00000";
+    s_iRegWrAddr_E <= "00000";
     s_iRegWrAddr_M <= "00000";
     s_iRegWrAddr_W <= "00000";
-    -- ForwardA = 00, ForwardB = 00
+    -- ForwardA = 00, ForwardB = 00, ForwardALU = 0
     wait for cCLK_PER;
 
+    s_iRegWr_E     <= '1';
     s_iRegWr_M     <= '1';
     s_iRegWr_W     <= '1';
     s_iInstRs_E    <= "00001";
     s_iInstRt_E    <= "00000";
+    s_iRegWrAddr_E <= "00100";
     s_iRegWrAddr_M <= "00001";
     s_iRegWrAddr_W <= "00000";
-    -- ForwardA = 01, ForwardB = 00
+    -- ForwardA = 01, ForwardB = 00, ForwardALU = 0
     wait for cCLK_PER;
 
+    s_iRegWr_E     <= '1';
     s_iRegWr_M     <= '1';
     s_iRegWr_W     <= '1';
     s_iInstRs_E    <= "00001";
     s_iInstRt_E    <= "00000";
+    s_iRegWrAddr_E <= "00101";
     s_iRegWrAddr_M <= "00001";
     s_iRegWrAddr_W <= "00001";
-    -- ForwardA = 01, ForwardB = 00
+    -- ForwardA = 01, ForwardB = 00, ForwardALU = 0
     wait for cCLK_PER;
 
+    s_iRegWr_E     <= '1';
     s_iRegWr_M     <= '1';
     s_iRegWr_W     <= '1';
     s_iInstRs_E    <= "00001";
     s_iInstRt_E    <= "00011";
+    s_iRegWrAddr_E <= "00001";
     s_iRegWrAddr_M <= "00001";
     s_iRegWrAddr_W <= "00001";
-    -- ForwardA = 01, ForwardB = 00
+    -- ForwardA = 01, ForwardB = 00, ForwardALU = 1
     wait for cCLK_PER;
 
+    s_iRegWr_E     <= '0';
     s_iRegWr_M     <= '1';
     s_iRegWr_W     <= '1';
     s_iInstRs_E    <= "00001";
     s_iInstRt_E    <= "00011";
+    s_iRegWrAddr_E <= "00001";
     s_iRegWrAddr_M <= "00011";
     s_iRegWrAddr_W <= "00001";
-    -- ForwardA = 10, ForwardB = 01
+    -- ForwardA = 10, ForwardB = 01, ForwardALU = 0
     wait for cCLK_PER;
 
+    s_iRegWr_E     <= '1';
     s_iRegWr_M     <= '1';
     s_iRegWr_W     <= '1';
     s_iInstRs_E    <= "00011";
     s_iInstRt_E    <= "00011";
+    s_iRegWrAddr_E <= "00011";
     s_iRegWrAddr_M <= "00011";
     s_iRegWrAddr_W <= "00011";
-    -- ForwardA = 01, ForwardB = 01
+    -- ForwardA = 01, ForwardB = 01, ForwardALU = 1
     wait for cCLK_PER;
 
+    s_iRegWr_E     <= '1';
     s_iRegWr_M     <= '1';
     s_iRegWr_W     <= '1';
     s_iInstRs_E    <= "00111";
     s_iInstRt_E    <= "00011";
+    s_iRegWrAddr_E <= "10111";
     s_iRegWrAddr_M <= "00111";
     s_iRegWrAddr_W <= "00011";
-    -- ForwardA = 01, ForwardB = 10
+    -- ForwardA = 01, ForwardB = 10, ForwardALU = 0
     wait for cCLK_PER;
 
+    s_iRegWr_E     <= '1';
     s_iRegWr_M     <= '1';
     s_iRegWr_W     <= '1';
     s_iInstRs_E    <= "10001";
     s_iInstRt_E    <= "10001";
+    s_iRegWrAddr_E <= "10001";
     s_iRegWrAddr_M <= "11111";
     s_iRegWrAddr_W <= "10001";
-    -- ForwardA = 10, ForwardB = 10
+    -- ForwardA = 10, ForwardB = 10, ForwardALU = 1
     wait for cCLK_PER;
 
     wait for cCLK_PER;
