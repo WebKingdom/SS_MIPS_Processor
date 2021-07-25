@@ -192,6 +192,8 @@ architecture structure of MIPS_Processor is
     port(
       i_MemRead_E   : in std_logic;
       i_Branch      : in std_logic;
+      i_Jump        : in std_logic;
+      i_JumpR       : in std_logic;
       i_InstRs_D    : in std_logic_vector(4 downto 0);
       i_InstRt_D    : in std_logic_vector(4 downto 0);
       i_RegWrAddr_E : in std_logic_vector(4 downto 0);
@@ -459,6 +461,8 @@ begin
   HazardUnit: hazard_unit port map(
     i_MemRead_E   => s_MemToReg_E,
     i_Branch      => s_Branch,
+    i_Jump        => s_Jump,
+    i_JumpR       => s_JumpR_D,
     i_InstRs_D    => s_Inst_D(25 downto 21),
     i_InstRt_D    => s_Inst_D(20 downto 16),
     i_RegWrAddr_E => s_RegWrAddr_E,

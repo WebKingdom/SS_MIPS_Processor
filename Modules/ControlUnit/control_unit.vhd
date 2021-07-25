@@ -262,8 +262,8 @@ begin
           o_RegWr					<= '0';
           o_RegDst				<= "--";
           o_SelExt				<= '-';
-          o_Branch				<= '-';
-          o_Jump					<= '-';
+          o_Branch				<= '0';
+          o_Jump					<= '1';
           o_JumpAL				<= '-';
           o_JumpR					<= '1';
           o_Halt					<= '0';
