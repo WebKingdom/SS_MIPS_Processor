@@ -26,6 +26,7 @@ architecture mixed of tb_hazard_unit is
   -- Change component declaration as needed. (Type must match signals.)
   component hazard_unit is
     port(
+      i_MemRead_D   : in std_logic;
       i_MemRead_E   : in std_logic;
       i_Branch      : in std_logic;
       i_Jump        : in std_logic;
@@ -44,6 +45,7 @@ architecture mixed of tb_hazard_unit is
   -- Input signals
   signal s_CLK          : std_logic;
 
+  signal s_iMemRead_D   : std_logic;
   signal s_iMemRead_E   : std_logic;
   signal s_iBranch      : std_logic;
   signal s_iJump        : std_logic;
@@ -64,6 +66,7 @@ begin
   -- NOTE: map component to signals
   DUT0: hazard_unit
   port map(
+    i_MemRead_D   => s_iMemRead_D,
     i_MemRead_E   => s_iMemRead_E,
     i_Branch      => s_iBranch,
     i_Jump        => s_iJump,
@@ -90,6 +93,7 @@ begin
   p_TB: process
   begin
     -- Initialize inputs
+    s_iMemRead_D   <= '0';
     s_iMemRead_E   <= '0';
     s_iBranch      <= '0';
     s_iJump        <= '0';
