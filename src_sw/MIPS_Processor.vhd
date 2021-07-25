@@ -117,6 +117,7 @@ architecture structure of MIPS_Processor is
   signal s_JumpAL_W   : std_logic;
   signal s_JumpR_D    : std_logic;
   signal s_JumpR_E    : std_logic;
+  signal s_JumpRAddr  : std_logic_vector(N-1 downto 0);
 
   -- Control input for ALU module
   signal s_ALUControl_D : std_logic_vector(4 downto 0);
@@ -148,7 +149,7 @@ architecture structure of MIPS_Processor is
   -- Forwarding Unit signals
   signal s_ForwardA   : std_logic_vector(1 downto 0);
   signal s_ForwardB   : std_logic_vector(1 downto 0);
-  signal s_ForwardALU : std_logic;
+  signal s_ForwardALU : std_logic_vector(1 downto 0);
 
   -- PC signals
   signal s_PCin       : std_logic_vector(N-1 downto 0);
@@ -225,6 +226,7 @@ architecture structure of MIPS_Processor is
       i_RegWr_E     : in std_logic;
       i_RegWr_M     : in std_logic;
       i_RegWr_W     : in std_logic;
+      i_InstRs_D    : in std_logic_vector(4 downto 0);
       i_InstRs_E    : in std_logic_vector(4 downto 0);
       i_InstRt_E    : in std_logic_vector(4 downto 0);
       i_RegWrAddr_E : in std_logic_vector(4 downto 0);
@@ -232,7 +234,7 @@ architecture structure of MIPS_Processor is
       i_RegWrAddr_W : in std_logic_vector(4 downto 0);
       o_ForwardA    : out std_logic_vector(1 downto 0);
       o_ForwardB    : out std_logic_vector(1 downto 0);
-      o_ForwardALU  : out std_logic
+      o_ForwardALU  : out std_logic_vector(1 downto 0)
     );
   end component;
 
@@ -387,9 +389,12 @@ begin
   -- Increment PC by 4
   s_PCp4_F <= (s_NextInstAddr + x"00000004");
 
+  s_JumpRAddr <= (s_RegRdOut0_D) when (s_ForwardALU = "00") else  -- No forwarding
+                 (s_DMemAddr_E) when (s_ForwardALU = "01") else   -- Forward from EX 
+                 (s_DMemAddr_M);  -- Forward from MEM
+
   -- Determine PC input, take decode stage into account
-  s_PCin <= (s_RegRdOut0_D) when (s_JumpR_D = '1' and s_ForwardALU = '0') else -- Jump register asserted and no forwarding
-            (s_DMemAddr_E) when (s_JumpR_D = '1' and s_ForwardALU = '1') else -- Jump register asserted and forwarding
+  s_PCin <= (s_JumpRAddr) when (s_JumpR_D = '1') else -- Jump register asserted and no forwarding
             (s_PCp4_DF) when (s_JumpR_D = '0' and (s_Jump = '1' or s_Branch = '1')) else  -- Jump or branch asserted
             (s_PCp4_F); -- Increment PC
 
@@ -506,6 +511,7 @@ begin
     i_RegWr_E     => s_regWr_E,
     i_RegWr_M     => s_regWr_M,
     i_RegWr_W     => s_regWr_W,
+    i_InstRs_D    => s_Inst_D(25 downto 21),
     i_InstRs_E    => s_InstRs_E,
     i_InstRt_E    => s_InstRt_E,
     i_RegWrAddr_E => s_RegWrAddr_E,

@@ -30,6 +30,7 @@ architecture mixed of tb_forward_unit is
       i_RegWr_E     : in std_logic;
       i_RegWr_M     : in std_logic;
       i_RegWr_W     : in std_logic;
+      i_InstRs_D    : in std_logic_vector(4 downto 0);
       i_InstRs_E    : in std_logic_vector(4 downto 0);
       i_InstRt_E    : in std_logic_vector(4 downto 0);
       i_RegWrAddr_E : in std_logic_vector(4 downto 0);
@@ -37,7 +38,7 @@ architecture mixed of tb_forward_unit is
       i_RegWrAddr_W : in std_logic_vector(4 downto 0);
       o_ForwardA    : out std_logic_vector(1 downto 0);
       o_ForwardB    : out std_logic_vector(1 downto 0);
-      o_ForwardALU  : out std_logic
+      o_ForwardALU  : out std_logic_vector(1 downto 0);
     );
   end component;
 
@@ -49,6 +50,7 @@ architecture mixed of tb_forward_unit is
   signal s_iRegWr_E     : std_logic;
   signal s_iRegWr_M     : std_logic;
   signal s_iRegWr_W     : std_logic;
+  signal s_iInstRs_D    : std_logic_vector(4 downto 0);
   signal s_iInstRs_E    : std_logic_vector(4 downto 0);
   signal s_iInstRt_E    : std_logic_vector(4 downto 0);
   signal s_iRegWrAddr_E : std_logic_vector(4 downto 0);
@@ -58,7 +60,7 @@ architecture mixed of tb_forward_unit is
   -- Output signals
   signal s_oForwardA    : std_logic_vector(1 downto 0);
   signal s_oForwardB    : std_logic_vector(1 downto 0);
-  signal s_oForwardALU  : std_logic;
+  signal s_oForwardALU  : std_logic_vector(1 downto 0);
 
 
 begin
@@ -70,6 +72,7 @@ begin
     i_RegWr_E     => s_iRegWr_E,
     i_RegWr_M     => s_iRegWr_M,
     i_RegWr_W     => s_iRegWr_W,
+    i_InstRs_D    => s_iInstRs_D,
     i_InstRs_E    => s_iInstRs_E,
     i_InstRt_E    => s_iInstRt_E,
     i_RegWrAddr_E => s_iRegWrAddr_E,
@@ -97,6 +100,7 @@ begin
     s_iRegWr_E     <= '0';
     s_iRegWr_M     <= '0';
     s_iRegWr_W     <= '0';
+    s_iInstRs_D    <= "00000";
     s_iInstRs_E    <= "00000";
     s_iInstRt_E    <= "00000";
     s_iRegWrAddr_E <= "00000";
@@ -108,6 +112,7 @@ begin
     s_iRegWr_E     <= '1';
     s_iRegWr_M     <= '1';
     s_iRegWr_W     <= '1';
+    s_iInstRs_D    <= "00000";
     s_iInstRs_E    <= "00000";
     s_iInstRt_E    <= "00000";
     s_iRegWrAddr_E <= "00000";
@@ -120,6 +125,7 @@ begin
     s_iRegWr_E     <= '1';
     s_iRegWr_M     <= '1';
     s_iRegWr_W     <= '1';
+    s_iInstRs_D    <= "00001";
     s_iInstRs_E    <= "00001";
     s_iInstRt_E    <= "00000";
     s_iRegWrAddr_E <= "00100";
@@ -132,6 +138,7 @@ begin
     s_iRegWr_E     <= '1';
     s_iRegWr_M     <= '1';
     s_iRegWr_W     <= '1';
+    s_iInstRs_D    <= "00001";
     s_iInstRs_E    <= "00001";
     s_iInstRt_E    <= "00000";
     s_iRegWrAddr_E <= "00101";
@@ -144,6 +151,7 @@ begin
     s_iRegWr_E     <= '1';
     s_iRegWr_M     <= '1';
     s_iRegWr_W     <= '1';
+    s_iInstRs_D    <= "00001";
     s_iInstRs_E    <= "00001";
     s_iInstRt_E    <= "00011";
     s_iRegWrAddr_E <= "00001";
@@ -156,6 +164,7 @@ begin
     s_iRegWr_E     <= '0';
     s_iRegWr_M     <= '1';
     s_iRegWr_W     <= '1';
+    s_iInstRs_D    <= "00001";
     s_iInstRs_E    <= "00001";
     s_iInstRt_E    <= "00011";
     s_iRegWrAddr_E <= "00001";
@@ -168,6 +177,7 @@ begin
     s_iRegWr_E     <= '1';
     s_iRegWr_M     <= '1';
     s_iRegWr_W     <= '1';
+    s_iInstRs_D    <= "00011";
     s_iInstRs_E    <= "00011";
     s_iInstRt_E    <= "00011";
     s_iRegWrAddr_E <= "00011";
@@ -180,6 +190,7 @@ begin
     s_iRegWr_E     <= '1';
     s_iRegWr_M     <= '1';
     s_iRegWr_W     <= '1';
+    s_iInstRs_D    <= "00111";
     s_iInstRs_E    <= "00111";
     s_iInstRt_E    <= "00011";
     s_iRegWrAddr_E <= "10111";
@@ -192,6 +203,7 @@ begin
     s_iRegWr_E     <= '1';
     s_iRegWr_M     <= '1';
     s_iRegWr_W     <= '1';
+    s_iInstRs_D    <= "10001";
     s_iInstRs_E    <= "10001";
     s_iInstRt_E    <= "10001";
     s_iRegWrAddr_E <= "10001";
