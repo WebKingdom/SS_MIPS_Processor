@@ -56,7 +56,7 @@ architecture mixed of tb_forward_unit is
   -- Output signals
   signal s_oForwardA    : std_logic_vector(1 downto 0);
   signal s_oForwardB    : std_logic_vector(1 downto 0);
-  signal s_oForwardALU  : std_logic_vector(1 downto 0);
+  signal s_oForwardALU  : std_logic;
 
 
 begin

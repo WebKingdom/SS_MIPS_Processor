@@ -43,6 +43,6 @@ begin
                 "10" when (i_RegWrAddr_W /= "00000" and i_RegWr_W = '1' and i_RegWrAddr_W = i_InstRt_E) else
                 "00";
 
-  o_ForwardALU <= '1' when (i_RegWrAddr_E =/ "00000" and i_RegWr_E = '1' and i_RegWrAddr_E = i_InstRs_E) else '0';
+  o_ForwardALU <= '1' when (i_RegWrAddr_E /= "00000" and i_RegWr_E = '1' and i_RegWrAddr_E = i_InstRs_E) else '0';
 
 end custom;

@@ -147,6 +147,7 @@ architecture structure of MIPS_Processor is
   -- Forwarding Unit signals
   signal s_ForwardA   : std_logic_vector(1 downto 0);
   signal s_ForwardB   : std_logic_vector(1 downto 0);
+  signal s_ForwardALU : std_logic;
 
   -- PC signals
   signal s_PCin       : std_logic_vector(N-1 downto 0);
@@ -219,14 +220,17 @@ architecture structure of MIPS_Processor is
 
   component forward_unit is
     port(
+      i_RegWr_E     : in std_logic;
       i_RegWr_M     : in std_logic;
       i_RegWr_W     : in std_logic;
       i_InstRs_E    : in std_logic_vector(4 downto 0);
       i_InstRt_E    : in std_logic_vector(4 downto 0);
+      i_RegWrAddr_E : in std_logic_vector(4 downto 0);
       i_RegWrAddr_M : in std_logic_vector(4 downto 0);
       i_RegWrAddr_W : in std_logic_vector(4 downto 0);
       o_ForwardA    : out std_logic_vector(1 downto 0);
-      o_ForwardB    : out std_logic_vector(1 downto 0)
+      o_ForwardB    : out std_logic_vector(1 downto 0);
+      o_ForwardALU  : out std_logic
     );
   end component;
 
@@ -380,8 +384,9 @@ begin
   s_PCp4_F <= (s_NextInstAddr + x"00000004");
 
   -- Determine PC input, take decode stage into account
-  s_PCin <= (s_RegRdOut0_D) when (s_JumpR = '1') else -- Jump register asserted
-            (s_PCp4_DF) when ((s_Jump = '1' or s_Branch = '1') and s_JumpR = '0') else  -- Jump or branch asserted
+  s_PCin <= (s_RegRdOut0_D) when (s_JumpR = '1' and s_ForwardALU = '0') else -- Jump register asserted and no forwarding
+            (s_DMemAddr_E) when (s_JumpR = '1' and s_ForwardALU = '1') else -- Jump register asserted and forwarding
+            (s_PCp4_DF) when (s_JumpR = '0' and (s_Jump = '1' or s_Branch = '1')) else  -- Jump or branch asserted
             (s_PCp4_F); -- Increment PC
 
   IF_ID_reg: reg_IF_ID port map(
@@ -491,14 +496,17 @@ begin
 
   -- Forwarding unit
   ForwardUnit: forward_unit port map(
+    i_RegWr_E     => s_regWr_E,
     i_RegWr_M     => s_regWr_M,
     i_RegWr_W     => s_regWr_W,
     i_InstRs_E    => s_InstRs_E,
     i_InstRt_E    => s_InstRt_E,
+    i_RegWrAddr_E => s_RegWrAddr_E,
     i_RegWrAddr_M => s_RegWrAddr_M,
     i_RegWrAddr_W => s_RegWrAddr_W,
     o_ForwardA    => s_ForwardA,
-    o_ForwardB    => s_ForwardB
+    o_ForwardB    => s_ForwardB,
+    o_ForwardALU  => s_ForwardALU
   );
 
   -- Select data memory data to be forwarded
