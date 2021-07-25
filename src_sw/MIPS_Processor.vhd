@@ -115,7 +115,8 @@ architecture structure of MIPS_Processor is
   signal s_JumpAL_E   : std_logic;
   signal s_JumpAL_M   : std_logic;
   signal s_JumpAL_W   : std_logic;
-  signal s_JumpR      : std_logic;
+  signal s_JumpR_D    : std_logic;
+  signal s_JumpR_E    : std_logic;
 
   -- Control input for ALU module
   signal s_ALUControl_D : std_logic_vector(4 downto 0);
@@ -220,6 +221,7 @@ architecture structure of MIPS_Processor is
 
   component forward_unit is
     port(
+      i_JumpR       : in std_logic;
       i_RegWr_E     : in std_logic;
       i_RegWr_M     : in std_logic;
       i_RegWr_W     : in std_logic;
@@ -264,6 +266,7 @@ architecture structure of MIPS_Processor is
       i_MemToReg  : in std_logic;
       i_PCp4      : in std_logic_vector(31 downto 0);
       i_JumpAL    : in std_logic;
+      i_JumpR     : in std_logic;
       i_RegWr     : in std_logic;
       i_Halt      : in std_logic;
       i_Shamt     : in std_logic_vector(4 downto 0);
@@ -282,6 +285,7 @@ architecture structure of MIPS_Processor is
       o_MemToReg  : out std_logic;
       o_PCp4      : out std_logic_vector(31 downto 0);
       o_JumpAL    : out std_logic;
+      o_JumpR     : out std_logic;
       o_RegWr     : out std_logic;
       o_Halt      : out std_logic;
       o_Shamt     : out std_logic_vector(4 downto 0);
@@ -384,9 +388,9 @@ begin
   s_PCp4_F <= (s_NextInstAddr + x"00000004");
 
   -- Determine PC input, take decode stage into account
-  s_PCin <= (s_RegRdOut0_D) when (s_JumpR = '1' and s_ForwardALU = '0') else -- Jump register asserted and no forwarding
-            (s_DMemAddr_E) when (s_JumpR = '1' and s_ForwardALU = '1') else -- Jump register asserted and forwarding
-            (s_PCp4_DF) when (s_JumpR = '0' and (s_Jump = '1' or s_Branch = '1')) else  -- Jump or branch asserted
+  s_PCin <= (s_RegRdOut0_D) when (s_JumpR_D = '1' and s_ForwardALU = '0') else -- Jump register asserted and no forwarding
+            (s_DMemAddr_E) when (s_JumpR_D = '1' and s_ForwardALU = '1') else -- Jump register asserted and forwarding
+            (s_PCp4_DF) when (s_JumpR_D = '0' and (s_Jump = '1' or s_Branch = '1')) else  -- Jump or branch asserted
             (s_PCp4_F); -- Increment PC
 
   IF_ID_reg: reg_IF_ID port map(
@@ -417,7 +421,7 @@ begin
     o_Branch      => s_Branch,
     o_Jump        => s_Jump,
     o_JumpAL      => s_JumpAL_D,
-    o_JumpR       => s_JumpR,
+    o_JumpR       => s_JumpR_D,
     o_Halt        => s_Halt_D,
     o_ALUControl  => s_ALUControl_D,
     o_RegDst      => s_RegDst_D
@@ -470,6 +474,7 @@ begin
     i_MemToReg  => s_MemToReg_D,
     i_PCp4      => s_PCp4_D,
     i_JumpAL    => s_JumpAL_D,
+    i_JumpR     => s_JumpR_D,
     i_RegWr     => s_RegWr_D,
     i_Halt      => s_Halt_D,
     i_Shamt     => s_Shamt_D,
@@ -488,6 +493,7 @@ begin
     o_MemToReg  => s_MemToReg_E,
     o_PCp4      => s_PCp4_E,
     o_JumpAL    => s_JumpAL_E,
+    o_JumpR     => s_JumpR_E,
     o_RegWr     => s_RegWr_E,
     o_Halt      => s_Halt_E,
     o_Shamt     => s_Shamt_E,
@@ -496,6 +502,7 @@ begin
 
   -- Forwarding unit
   ForwardUnit: forward_unit port map(
+    i_JumpR       => s_JumpR_D,
     i_RegWr_E     => s_regWr_E,
     i_RegWr_M     => s_regWr_M,
     i_RegWr_W     => s_regWr_W,

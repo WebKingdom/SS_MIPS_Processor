@@ -26,6 +26,7 @@ architecture mixed of tb_forward_unit is
   -- Change component declaration as needed. (Type must match signals.)
   component forward_unit is
     port(
+      i_JumpR       : in std_logic;
       i_RegWr_E     : in std_logic;
       i_RegWr_M     : in std_logic;
       i_RegWr_W     : in std_logic;
@@ -44,6 +45,7 @@ architecture mixed of tb_forward_unit is
   -- Input signals
   signal s_CLK          : std_logic;
 
+  signal s_iJumpR       : std_logic;
   signal s_iRegWr_E     : std_logic;
   signal s_iRegWr_M     : std_logic;
   signal s_iRegWr_W     : std_logic;
@@ -64,6 +66,7 @@ begin
   -- NOTE: map component to signals
   DUT0: forward_unit
   port map(
+    i_JumpR       => s_iJumpR,
     i_RegWr_E     => s_iRegWr_E,
     i_RegWr_M     => s_iRegWr_M,
     i_RegWr_W     => s_iRegWr_W,
@@ -90,6 +93,7 @@ begin
   p_TB: process
   begin
     -- Initialize inputs
+    s_iJumpR       <= '0';
     s_iRegWr_E     <= '0';
     s_iRegWr_M     <= '0';
     s_iRegWr_W     <= '0';
@@ -100,6 +104,7 @@ begin
     s_iRegWrAddr_W <= "00000";
     wait for cCLK_PER;
 
+    s_iJumpR       <= '1';
     s_iRegWr_E     <= '1';
     s_iRegWr_M     <= '1';
     s_iRegWr_W     <= '1';
@@ -111,6 +116,7 @@ begin
     -- ForwardA = 00, ForwardB = 00, ForwardALU = 0
     wait for cCLK_PER;
 
+    s_iJumpR       <= '1';
     s_iRegWr_E     <= '1';
     s_iRegWr_M     <= '1';
     s_iRegWr_W     <= '1';
@@ -122,6 +128,7 @@ begin
     -- ForwardA = 01, ForwardB = 00, ForwardALU = 0
     wait for cCLK_PER;
 
+    s_iJumpR       <= '1';
     s_iRegWr_E     <= '1';
     s_iRegWr_M     <= '1';
     s_iRegWr_W     <= '1';
@@ -133,6 +140,7 @@ begin
     -- ForwardA = 01, ForwardB = 00, ForwardALU = 0
     wait for cCLK_PER;
 
+    s_iJumpR       <= '1';
     s_iRegWr_E     <= '1';
     s_iRegWr_M     <= '1';
     s_iRegWr_W     <= '1';
@@ -144,6 +152,7 @@ begin
     -- ForwardA = 01, ForwardB = 00, ForwardALU = 1
     wait for cCLK_PER;
 
+    s_iJumpR       <= '1';
     s_iRegWr_E     <= '0';
     s_iRegWr_M     <= '1';
     s_iRegWr_W     <= '1';
@@ -155,6 +164,7 @@ begin
     -- ForwardA = 10, ForwardB = 01, ForwardALU = 0
     wait for cCLK_PER;
 
+    s_iJumpR       <= '1';
     s_iRegWr_E     <= '1';
     s_iRegWr_M     <= '1';
     s_iRegWr_W     <= '1';
@@ -166,6 +176,7 @@ begin
     -- ForwardA = 01, ForwardB = 01, ForwardALU = 1
     wait for cCLK_PER;
 
+    s_iJumpR       <= '1';
     s_iRegWr_E     <= '1';
     s_iRegWr_M     <= '1';
     s_iRegWr_W     <= '1';
@@ -177,6 +188,7 @@ begin
     -- ForwardA = 01, ForwardB = 10, ForwardALU = 0
     wait for cCLK_PER;
 
+    s_iJumpR       <= '1';
     s_iRegWr_E     <= '1';
     s_iRegWr_M     <= '1';
     s_iRegWr_W     <= '1';

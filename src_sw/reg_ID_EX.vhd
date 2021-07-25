@@ -33,6 +33,7 @@ entity reg_ID_EX is
     i_MemToReg  : in std_logic;
     i_PCp4      : in std_logic_vector(31 downto 0);
     i_JumpAL    : in std_logic;
+    i_JumpR     : in std_logic;
     i_RegWr     : in std_logic;
     i_Halt      : in std_logic;
     i_Shamt     : in std_logic_vector(4 downto 0);
@@ -51,6 +52,7 @@ entity reg_ID_EX is
     o_MemToReg  : out std_logic;
     o_PCp4      : out std_logic_vector(31 downto 0);
     o_JumpAL    : out std_logic;
+    o_JumpR     : out std_logic;
     o_RegWr     : out std_logic;
     o_Halt      : out std_logic;
     o_Shamt     : out std_logic_vector(4 downto 0);
@@ -79,6 +81,7 @@ begin
       o_MemToReg  <= '0';
       o_PCp4      <= x"00000000";
       o_JumpAL    <= '0';
+      o_JumpR     <= '0';
       o_RegWr     <= '0';
       o_Halt      <= '0';
       o_Shamt     <= "00000";
@@ -98,6 +101,7 @@ begin
       o_MemToReg  <= i_MemToReg;
       o_PCp4      <= i_PCp4;
       o_JumpAL    <= i_JumpAL;
+      o_JumpR     <= i_JumpR;
       o_RegWr     <= i_RegWr;
       o_Halt      <= i_Halt;
       o_Shamt     <= i_Shamt;
