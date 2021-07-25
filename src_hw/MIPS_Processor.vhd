@@ -152,6 +152,7 @@ architecture structure of MIPS_Processor is
 
   -- PC signals
   signal s_PCin       : std_logic_vector(N-1 downto 0);
+  signal s_PCWrite    : std_logic;
   signal s_PCp4_F     : std_logic_vector(N-1 downto 0);
   signal s_PCp4_D     : std_logic_vector(N-1 downto 0);
   signal s_PCp4_E     : std_logic_vector(N-1 downto 0);
@@ -159,6 +160,12 @@ architecture structure of MIPS_Processor is
   signal s_PCp4_W     : std_logic_vector(N-1 downto 0);
   -- PC signal for decode to fetch stage loop back
   signal s_PCp4_DF    : std_logic_vector(N-1 downto 0);
+
+  -- Pipeline register flush/reset signals
+  signal s_FlushId    : std_logic;
+  signal s_FlushEx    : std_logic;
+  signal s_IfIdRst    : std_logic;
+  signal s_IdExRst    : std_logic;
 
 
   component control_unit is
@@ -178,6 +185,20 @@ architecture structure of MIPS_Processor is
       o_Halt        : out std_logic;
       o_ALUControl  : out std_logic_vector(4 downto 0);
       o_RegDst      : out std_logic_vector(1 downto 0)
+    );
+  end component;
+
+  component hazard_unit is
+    port(
+      i_MemRead_E   : in std_logic;
+      i_Branch      : in std_logic;
+      i_InstRs_D    : in std_logic_vector(4 downto 0);
+      i_InstRt_D    : in std_logic_vector(4 downto 0);
+      i_RegWrAddr_E : in std_logic_vector(4 downto 0);
+      i_RegWrAddr_M : in std_logic_vector(4 downto 0);
+      o_PCWrite     : out std_logic;
+      o_FlushId     : out std_logic;
+      o_FlushEx     : out std_logic
     );
   end component;
 
@@ -376,12 +397,14 @@ begin
 
   -- IF stage:
 
-  PCModule: process(iCLK, iRST)
+  PCModule: process(iCLK, iRST, s_PCWrite)
   begin
     if (iRST = '1') then
       s_NextInstAddr <= x"00400000";
     elsif (rising_edge(iCLK)) then
-      s_NextInstAddr <= s_PCin;
+      if (s_PCWrite = '1') then
+        s_NextInstAddr <= s_PCin;
+      end if;
     end if;
   end process;
 
@@ -397,16 +420,18 @@ begin
             (s_PCp4_DF) when (s_JumpR_D = '0' and (s_Jump = '1' or s_Branch = '1')) else  -- Jump or branch asserted
             (s_PCp4_F); -- Increment PC
 
+  s_IfIdRst <= iRST or s_FlushId;
+
+  -- ID stage:
+
   IF_ID_reg: reg_IF_ID port map(
     i_CLK   => iCLK,
-    i_RST   => iRST,
+    i_RST   => s_IfIdRst,
     i_Inst  => s_Inst_F,
     i_PCp4  => s_PCp4_F,
     o_Inst  => s_Inst_D,
     o_PCp4  => s_PCp4_D
   );
-
-  -- ID stage:
 
   -- PC jump or branch logic in decode stage
   s_PCp4_DF <= (s_PCp4_D(31 downto 28) & (s_Inst_D(25 downto 0) & "00")) when (s_Jump = '1') else	-- Jump asserted
@@ -429,6 +454,18 @@ begin
     o_Halt        => s_Halt_D,
     o_ALUControl  => s_ALUControl_D,
     o_RegDst      => s_RegDst_D
+  );
+
+  HazardUnit: hazard_unit port map(
+    i_MemRead_E   => s_MemToReg_E,
+    i_Branch      => s_Branch,
+    i_InstRs_D    => s_Inst_D(25 downto 21),
+    i_InstRt_D    => s_Inst_D(20 downto 16),
+    i_RegWrAddr_E => s_RegWrAddr_E,
+    i_RegWrAddr_M => s_RegWrAddr_M,
+    o_PCWrite     => s_PCWrite,
+    o_FlushId     => s_FlushId,
+    o_FlushEx     => s_FlushEx
   );
 
   RegFile: reg_file port map(
@@ -460,11 +497,13 @@ begin
   -- Map ALU shifter operation based on function code
   s_LRCtl_D <= '0' when (s_Inst_D(31 downto 26) = "001111") else s_Inst_D(1);
 
+  s_IdExRst <= iRST or s_FlushEx;
+
   -- EX stage:
 
   ID_EX_reg: reg_ID_EX port map(
     i_CLK       => iCLK,
-    i_RST       => iRST,
+    i_RST       => s_IdExRst,
     i_RegRd0    => s_RegRdOut0_D,
     i_RegRd1    => s_RegRdOut1_D,
     i_ImmExt    => s_ImmExt_D,

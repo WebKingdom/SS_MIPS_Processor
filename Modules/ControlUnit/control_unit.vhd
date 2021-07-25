@@ -17,21 +17,21 @@ use IEEE.std_logic_1164.all;
 
 entity control_unit is
   port(
-    i_Opcode			: in std_logic_vector(5 downto 0);
-    i_Function		: in std_logic_vector(5 downto 0);
-    i_Reset				: in std_logic;
-    o_ALUSrc			: out std_logic;
-    o_MemToReg		: out std_logic;
-    o_DMemWr			: out std_logic;
-    o_RegWr				: out std_logic;
-    o_SelExt			: out std_logic;
-    o_Branch			: out std_logic;
-    o_Jump				: out std_logic;
-    o_JumpAL			: out std_logic;
-    o_JumpR				: out std_logic;
-    o_Halt				: out std_logic;
-    o_ALUControl	: out std_logic_vector(4 downto 0);
-    o_RegDst			: out std_logic_vector(1 downto 0)
+    i_Opcode      : in std_logic_vector(5 downto 0);
+    i_Function    : in std_logic_vector(5 downto 0);
+    i_Reset       : in std_logic;
+    o_ALUSrc      : out std_logic;
+    o_MemToReg    : out std_logic;
+    o_DMemWr      : out std_logic;
+    o_RegWr       : out std_logic;
+    o_SelExt      : out std_logic;
+    o_Branch      : out std_logic;
+    o_Jump        : out std_logic;
+    o_JumpAL      : out std_logic;
+    o_JumpR       : out std_logic;
+    o_Halt        : out std_logic;
+    o_ALUControl  : out std_logic_vector(4 downto 0);
+    o_RegDst      : out std_logic_vector(1 downto 0)
   );
 end control_unit;
 
@@ -257,7 +257,7 @@ begin
         when "001000" =>
           o_ALUSrc 				<= '-';
           o_ALUControl 		<= "-----";
-          o_MemToReg			<= '-';
+          o_MemToReg			<= '0';
           o_DMemWr				<= '0';
           o_RegWr					<= '0';
           o_RegDst				<= "--";
@@ -426,7 +426,7 @@ begin
         when "101011" =>
           o_ALUSrc 				<= '1';
           o_ALUControl 		<= "00010";
-          o_MemToReg			<= '-';
+          o_MemToReg			<= '0';
           o_DMemWr				<= '1';
           o_RegWr					<= '0';
           o_RegDst				<= "--";
@@ -441,7 +441,7 @@ begin
         when "000100" =>
           o_ALUSrc 				<= '0';
           o_ALUControl 		<= "00101";
-          o_MemToReg			<= '-';
+          o_MemToReg			<= '0';
           o_DMemWr				<= '0';
           o_RegWr					<= '0';
           o_RegDst				<= "--";
@@ -456,7 +456,7 @@ begin
         when "000101" =>
           o_ALUSrc 				<= '0';
           o_ALUControl 		<= "00111";
-          o_MemToReg			<= '-';
+          o_MemToReg			<= '0';
           o_DMemWr				<= '0';
           o_RegWr					<= '0';
           o_RegDst				<= "--";
@@ -471,7 +471,7 @@ begin
         when "000010" =>
           o_ALUSrc 				<= '-';
           o_ALUControl 		<= "-----";
-          o_MemToReg			<= '-';
+          o_MemToReg			<= '0';
           o_DMemWr				<= '0';
           o_RegWr					<= '0';
           o_RegDst				<= "--";
@@ -486,7 +486,7 @@ begin
         when "000011" =>
           o_ALUSrc 				<= '-';
           o_ALUControl 		<= "-----";
-          o_MemToReg			<= '-';
+          o_MemToReg			<= '0';
           o_DMemWr				<= '0';
           o_RegWr					<= '1';
           o_RegDst				<= "10";
@@ -501,7 +501,7 @@ begin
         when "011111" =>
           o_ALUSrc 				<= '1';
           o_ALUControl 		<= "00110";
-          o_MemToReg			<= '-';
+          o_MemToReg			<= '0';
           o_DMemWr				<= '0';
           o_RegWr					<= '1';
           o_RegDst				<= "00";
@@ -529,18 +529,18 @@ begin
 
         -- no matches
         when others =>
-          o_ALUSrc 				<= '0';
-          o_ALUControl 		<= "00000";
-          o_MemToReg			<= '0';
-          o_DMemWr				<= '0';
-          o_RegWr					<= '0';
-          o_RegDst				<= "00";
-          o_SelExt				<= '0';
-          o_Branch				<= '0';
-          o_Jump					<= '0';
-          o_JumpAL				<= '0';
-          o_JumpR					<= '0';
-          o_Halt					<= '0';
+          o_ALUSrc        <= '0';
+          o_ALUControl    <= "00000";
+          o_MemToReg      <= '0';
+          o_DMemWr        <= '0';
+          o_RegWr         <= '0';
+          o_RegDst        <= "00";
+          o_SelExt        <= '0';
+          o_Branch        <= '0';
+          o_Jump          <= '0';
+          o_JumpAL        <= '0';
+          o_JumpR         <= '0';
+          o_Halt          <= '0';
           -- Same as reset, but set HALT bit to 1
       end case;
     end if;

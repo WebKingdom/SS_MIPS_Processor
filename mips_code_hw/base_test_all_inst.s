@@ -92,7 +92,7 @@ b_eq:
 	j beq_done
 	nop
 	
-b_ne: 
+b_ne:
 	addiu $ra, $zero, 0x100
 	j done_branching
 	nop

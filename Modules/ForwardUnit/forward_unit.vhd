@@ -29,7 +29,7 @@ entity forward_unit is
     i_RegWrAddr_W : in std_logic_vector(4 downto 0);
     o_ForwardA    : out std_logic_vector(1 downto 0);
     o_ForwardB    : out std_logic_vector(1 downto 0);
-    o_ForwardALU  : out std_logic_vector(1 downto 0);
+    o_ForwardALU  : out std_logic_vector(1 downto 0)
   );
 end forward_unit;
 
