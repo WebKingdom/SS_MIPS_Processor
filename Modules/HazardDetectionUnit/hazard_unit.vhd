@@ -34,18 +34,27 @@ end hazard_unit;
 
 architecture custom of hazard_unit is
 
+  signal s_StallBranchJr  : std_logic;
+  signal s_LoadUse        : std_logic;
+
 begin
 
-  -- 2nd big condition is to ensure the register(s) get written prior to accessing them for branching/jumping to register
-  o_PCWrite <= '0' when (((i_MemRead_E = '1') and (i_MemRead_D /= '1') and (i_InstRt_D = i_RegWrAddr_E)) or ((i_Branch = '1' or i_JumpR = '1') and (
-                        ((i_InstRs_D = i_RegWrAddr_E or i_InstRt_D = i_RegWrAddr_E) and (i_RegWrAddr_E /= "00000")) or
-                        ((i_InstRs_D = i_RegWrAddr_M or i_InstRt_D = i_RegWrAddr_M) and (i_RegWrAddr_M /= "00000"))) )) else 
-                        '1';
+  -- Determines when to stall pipeline for branch or jump register (prevent PC update, do not flush ID, flush EX)
+  s_StallBranchJr <= '1' when (((i_InstRs_D = i_RegWrAddr_E or i_InstRt_D = i_RegWrAddr_E) and (i_RegWrAddr_E /= "00000")) or
+                              ((i_InstRs_D = i_RegWrAddr_M or i_InstRt_D = i_RegWrAddr_M) and (i_RegWrAddr_M /= "00000"))) else
+                     '0';
+
+  -- Determines when there is a load use data hazard (prevent PC update, do not flush ID, flush EX)
+  s_LoadUse <= '1' when ((i_MemRead_E = '1') and (i_MemRead_D /= '1') and ((i_InstRt_D = i_RegWrAddr_E) or (i_InstRs_D = i_RegWrAddr_E))) else
+               '0';
+
+  -- 2nd OR condition is to ensure the register(s) get written prior to accessing them for branching/jumping to register
+  o_PCWrite <= '0' when ((s_LoadUse = '1') or ((i_Branch = '1' or i_JumpR = '1') and (s_StallBranchJr = '1'))) else '1';
 
   -- Sets IF/ID register to 0
-  o_FlushId <= '1' when (i_Branch = '1' or i_Jump = '1') else '0';
+  o_FlushId <= '1' when (i_Jump = '1' or ((i_Branch = '1' or i_JumpR = '1') and (s_StallBranchJr /= '1'))) else '0';
 
   -- Sets ID/EX register to 0
-  o_FlushEx <= '1' when ((i_MemRead_E = '1') and (i_MemRead_D /= '1') and (i_InstRt_D = i_RegWrAddr_E)) else '0';
+  o_FlushEx <= '1' when ((s_LoadUse = '1') or (s_StallBranchJr = '1')) else '0';
 
 end custom;

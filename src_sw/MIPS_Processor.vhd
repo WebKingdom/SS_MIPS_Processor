@@ -1,6 +1,6 @@
 -------------------------------------------------------------------------
--- Skeleton for MIPS processor by Henry Duwe, full implementation by
--- Soma Szabo
+-- MIPS processor full implementation by Soma Szabo
+-- Initial skeleton by Henry Duwe
 -- Iowa State University
 -------------------------------------------------------------------------
 
