@@ -5,35 +5,24 @@ msg: .asciiz "done"
 .text
 
 jal start
-nop
 
 add $t2, $t1, $t1
-nop
-nop
 
 bne $t1, $t2, compare
-nop
 
 start:
 	addi $t1, $0, 12
 	jr $ra
-	nop
 	
 compare: 
 	sll $t1, $t1, 1
-	nop
-	nop
 	
 	beq $t1, $t2, checker	
-	nop
 	
 checker:
 	addi $v0, $0, 4
 	la $a0, msg
 	j done
-	nop
 	
 done:
 	halt
-	nop
-	nop

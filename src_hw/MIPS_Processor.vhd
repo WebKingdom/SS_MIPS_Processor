@@ -166,6 +166,7 @@ architecture structure of MIPS_Processor is
   signal s_FlushEx    : std_logic;
   signal s_IfIdRst    : std_logic;
   signal s_IdExRst    : std_logic;
+  signal s_EnIfId     : std_logic;
 
 
   component control_unit is
@@ -190,13 +191,13 @@ architecture structure of MIPS_Processor is
 
   component hazard_unit is
     port(
-      i_MemRead_D   : in std_logic;
       i_MemRead_E   : in std_logic;
       i_Branch      : in std_logic;
       i_Jump        : in std_logic;
       i_JumpR       : in std_logic;
       i_InstRs_D    : in std_logic_vector(4 downto 0);
       i_InstRt_D    : in std_logic_vector(4 downto 0);
+      i_InstRt_E    : in std_logic_vector(4 downto 0);
       i_RegWrAddr_E : in std_logic_vector(4 downto 0);
       i_RegWrAddr_M : in std_logic_vector(4 downto 0);
       o_PCWrite     : out std_logic;
@@ -265,6 +266,7 @@ architecture structure of MIPS_Processor is
   component reg_IF_ID is
     generic(N : integer := 32);
     port(
+      i_EN    : in std_logic;
       i_CLK   : in std_logic;
       i_RST   : in std_logic;
       i_Inst  : in std_logic_vector(N-1 downto 0);
@@ -402,8 +404,8 @@ begin
   begin
     if (iRST = '1') then
       s_NextInstAddr <= x"00400000";
-    elsif (rising_edge(iCLK)) then
-      if (s_PCWrite = '1') then
+    elsif (s_PCWrite = '1') then
+      if (rising_edge(iCLK)) then
         s_NextInstAddr <= s_PCin;
       end if;
     end if;
@@ -424,8 +426,10 @@ begin
   s_IfIdRst <= iRST or s_FlushId;
 
   -- ID stage:
+  s_EnIfId <= '0' when (s_PCWrite = '0' and s_FlushEx = '1') else '1';
 
   IF_ID_reg: reg_IF_ID port map(
+    i_EN    => s_EnIfId,
     i_CLK   => iCLK,
     i_RST   => s_IfIdRst,
     i_Inst  => s_Inst_F,
@@ -458,13 +462,13 @@ begin
   );
 
   HazardUnit: hazard_unit port map(
-    i_MemRead_D   => s_MemToReg_D,
     i_MemRead_E   => s_MemToReg_E,
     i_Branch      => s_Branch,
     i_Jump        => s_Jump,
     i_JumpR       => s_JumpR_D,
     i_InstRs_D    => s_Inst_D(25 downto 21),
     i_InstRt_D    => s_Inst_D(20 downto 16),
+    i_InstRt_E    => s_InstRt_E,
     i_RegWrAddr_E => s_RegWrAddr_E,
     i_RegWrAddr_M => s_RegWrAddr_M,
     o_PCWrite     => s_PCWrite,

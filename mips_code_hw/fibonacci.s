@@ -27,31 +27,23 @@ prompt: .asciiz "How many Fibonacci numbers to generate? (2 <= x <= 19)"
       # Loop to compute each Fibonacci number using the previous two Fib. numbers.
 loop: lw   $s3, 0($s0)      # Get value from array F[n-2]
       lw   $s4, 4($s0)      # Get value from array F[n-1]
-      nop
 
       add  $s2, $s3, $s4    # F[n] = F[n-1] + F[n-2]
       sw   $s2, 8($s0)      # Store newly computed F[n] in array
       addi $s0, $s0, 4      # increment address to now-known Fib. number storage
       addi $s1, $s1, -1     # decrement loop counter
-      nop
-      nop
 
       bne $s1, $zero, loop  # repeat while not finished
-      nop
       
       # Fibonacci numbers are computed and stored in array. Print them.
       la   $a0, fibs        # first argument for print (array)
       add  $a1, $zero, $s5  # second argument for print (size)
       jal  print            # call print routine. 
-      nop
 
       # The program is finished. Exit.
       halt
-      nop
-      nop
 
       j die
-      nop
 
 ###############################################################
 # Subroutine to print the numbers on one line.
@@ -75,13 +67,10 @@ out:  lw   $a0, 0($t0)      # load the integer to be printed (the current Fib. n
       
       addi $t1, $t1, -1     # decrement loop counter
       addi $t0, $t0, 4      # increment address of data to be printed
-      nop
 
       bne $t1, $zero , out         # repeat while not finished
-      nop
       
       jr   $ra              # return from subroutine
-      nop
       
 die:
 # End of subroutine to print the numbers on one line

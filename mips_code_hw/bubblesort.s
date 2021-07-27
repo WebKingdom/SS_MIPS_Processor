@@ -15,12 +15,9 @@ Main:
 	addi  $a1, $zero, 10 	#array size
 	
 	jal BubbleSort
-	nop
 	
 	#exit program
 	halt  #halt for testingframework
-	nop
-	nop
   
 	li $v0, 10
 	syscall
@@ -35,44 +32,34 @@ BubbleSort: #swap (a[j], a[j+1])
 
 outerloop: #for i from 1 to N
 	beq $t0, $t2 exit	#if int i == len(array)
-	nop
 	
 	addi $t0 ,$t0, 1	#i++
 	addi $t1, $zero, 0	#reset j to 0
 	addi $s1, $s0,  0	#reset address to base address
 	
 	j innerloop
-	nop
 
 innerloop: #for j from 0 to N-1
 	sub $t5, $t2, $t0	#n-i
 	subi $t5, $t5, 1	#t5-1
 	slt $t3, $t1, $t2
-	nop
-	nop
 	
 	beq $t3, $zero, outerloop 	# if( j < n-i-1) we break the loop
-	nop
 	
 	lw $t6, 0($s1) 		#load first int	
 	lw $t7, 4($s1) 		#load second int
-	nop
 	
 	slt $t3, $t7, $t6 	# t3 = second < first
 	
 	#beq $t3, 1, swap
 	addi $1, $0, 1
-	nop
-	nop
 	
 	beq $1, $11, swap
-	nop
 	
 	#end loop increase j loop back
 	addi $t1, $t1, 1	#j++
 	addi $s1, $s1, 4	#base address +=4
 	j innerloop
-	nop
 
 swap:
 	addi $t5, $t6, 0  #temp = t6
@@ -84,13 +71,11 @@ swap:
 	sw $t7, 4($s1)
 	addi $s1, $s1, 4	#base address +=4
 	j innerloop
-	nop
 
 exit:
 	addi $t5, $zero, 0	#t5 will be used as i
 	add $s1, $zero, $s0     #set current address to base address
 	beq $t3, $zero, end #
-	nop
 	
 	addi $t5, $t5, 1 #
 	addi $s1, $s1, 4 #
@@ -124,4 +109,3 @@ exit:
 	##nop
 end:
 jr $ra
-nop

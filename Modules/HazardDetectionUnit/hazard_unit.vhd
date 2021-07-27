@@ -17,13 +17,13 @@ use IEEE.std_logic_1164.all;
 
 entity hazard_unit is
   port(
-    i_MemRead_D   : in std_logic;
     i_MemRead_E   : in std_logic;
     i_Branch      : in std_logic;
     i_Jump        : in std_logic;
     i_JumpR       : in std_logic;
     i_InstRs_D    : in std_logic_vector(4 downto 0);
     i_InstRt_D    : in std_logic_vector(4 downto 0);
+    i_InstRt_E    : in std_logic_vector(4 downto 0);
     i_RegWrAddr_E : in std_logic_vector(4 downto 0);
     i_RegWrAddr_M : in std_logic_vector(4 downto 0);
     o_PCWrite     : out std_logic;
@@ -45,7 +45,7 @@ begin
                      '0';
 
   -- Determines when there is a load use data hazard (prevent PC update, do not flush ID, flush EX)
-  s_LoadUse <= '1' when ((i_MemRead_E = '1') and (i_MemRead_D /= '1') and ((i_InstRt_D = i_RegWrAddr_E) or (i_InstRs_D = i_RegWrAddr_E))) else
+  s_LoadUse <= '1' when ((i_MemRead_E = '1') and ((i_InstRt_E = i_InstRs_D) or (i_InstRt_E = i_InstRt_D))) else
                '0';
 
   -- 2nd OR condition is to ensure the register(s) get written prior to accessing them for branching/jumping to register
@@ -55,6 +55,6 @@ begin
   o_FlushId <= '1' when (i_Jump = '1' or ((i_Branch = '1' or i_JumpR = '1') and (s_StallBranchJr /= '1'))) else '0';
 
   -- Sets ID/EX register to 0
-  o_FlushEx <= '1' when ((s_LoadUse = '1') or (s_StallBranchJr = '1')) else '0';
+  o_FlushEx <= '1' when ((s_LoadUse = '1') or ((i_Branch = '1' or i_JumpR = '1') and (s_StallBranchJr = '1'))) else '0';
 
 end custom;

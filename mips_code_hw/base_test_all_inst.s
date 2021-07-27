@@ -4,6 +4,7 @@
 arr1: .word 0x5, 0xA, 0xF, 0x5A, 0x5F, 0xAF, 0x5AA, 0x5AF, 0x5FA, 0x5FF, 0xAAF, 0xAFF, 0xFA5, 0xFFF
 
 .text
+# TODO needs jump address changes
 
 addi $t0, $zero, 0xE	# $t0 = size = 14
 addi $zero, $t0, 0xE	# Should not modify anything
@@ -39,11 +40,8 @@ or $a2, $t9, $t8		# $a2 = 0xF
 ori $a3, $a2, 0x8FF0	# $a3 = 0x8FFF
 
 addiu $v0, $v0, 0xF0	# reset $at
-nop
-nop
 
 beq $ra, $v0, exit		# Only branch if jr has been called
-nop
 
 slt $s0, $a0, $a1		# $s0 = 0x0
 slt $s1, $t4, $a1		# $s1 = 0x1
@@ -67,56 +65,38 @@ sub $sp, $s7, $a3		# $sp = 0xFFFF7000
 subu $ra, $t3, $t2		# $ra = 0xFFFF0001
 
 beq $t0, $s4, b_eq		# don't take branch
-nop
 
 addiu $v0, $zero, 0xE
-nop
-nop
 
 beq $t0, $v0, b_eq		# take branch
-nop
 
 beq_done:
 	bne $t0, $v0, b_ne	# don't take branch
-	nop
-
 	addiu $v1, $zero, 0xFE
-	nop
-	nop
-
 	bne $t0, $v1, b_ne	# take branch
-	nop
 
 b_eq:
 	addiu $at, $ra, 0
 	j beq_done
-	nop
 	
 b_ne:
 	addiu $ra, $zero, 0x100
 	j done_branching
-	nop
 	
 done_branching:
 	lui $sp, 0x1001
 	ori $sp, 0x1000
 	jal jump_link
-	nop
 	
 jump_link:
 	addu $v0, $zero, $ra	# $at = $ra = 0x
 	subi $v0, $v0, 0xF0		# set jump address
-	nop
-	nop
 	
 	jr $v0
-	nop
 
 exit:
 	# Exit program
 	halt
-	nop
-	nop
 	
 	li $v0, 10
 	syscall
