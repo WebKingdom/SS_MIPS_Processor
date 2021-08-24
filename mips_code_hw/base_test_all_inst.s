@@ -4,7 +4,6 @@
 arr1: .word 0x5, 0xA, 0xF, 0x5A, 0x5F, 0xAF, 0x5AA, 0x5AF, 0x5FA, 0x5FF, 0xAAF, 0xAFF, 0xFA5, 0xFFF
 
 .text
-# TODO needs jump address changes
 
 addi $t0, $zero, 0xE	# $t0 = size = 14
 addi $zero, $t0, 0xE	# Should not modify anything
@@ -22,8 +21,7 @@ and $t6, $t4, $t2		# $t6 = 0x0
 and $t6, $t4, $t3		# $t6 = 0x10000
 andi $t7, $t4, 0xFFFF	# $t7 = 0x0
 
-# la $t1, arr1			# $t1 = &arr1
-lui $t1, 0x1001		# replaces la $t1, arr1	from previous line
+la $t1, arr1			# $t1 = &arr1
 lui $t8, 0xAA55			# $t8 = 0xAA550000
 
 lw $t9, 0($t1)			# $t9 = arr1[0]
@@ -39,7 +37,7 @@ xori $a1, $t8, 0xAA55	# $a1 = 0xAA5F
 or $a2, $t9, $t8		# $a2 = 0xF
 ori $a3, $a2, 0x8FF0	# $a3 = 0x8FFF
 
-addiu $v0, $v0, 0xF0	# reset $at
+addiu $v0, $v0, 0xC0	# reset $at
 
 beq $ra, $v0, exit		# Only branch if jr has been called
 
@@ -90,7 +88,7 @@ done_branching:
 	
 jump_link:
 	addu $v0, $zero, $ra	# $at = $ra = 0x
-	subi $v0, $v0, 0xF0		# set jump address
+	subi $v0, $v0, 0xC0		# set jump address
 	
 	jr $v0
 
