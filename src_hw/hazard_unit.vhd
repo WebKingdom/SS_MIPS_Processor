@@ -48,7 +48,8 @@ begin
   s_LoadUse <= '1' when ((i_MemRead_E = '1') and ((i_InstRt_E = i_InstRs_D) or (i_InstRt_E = i_InstRt_D))) else
                '0';
 
-  -- 2nd OR condition is to ensure the register(s) get written prior to accessing them for branching/jumping to register
+  -- Determines when to write to PC
+  -- OR after load use is to ensure the register(s) get written prior to accessing them for branching/jumping to register
   o_PCWrite <= '0' when ((s_LoadUse = '1') or ((i_Branch = '1' or i_JumpR = '1') and (s_StallBranchJr = '1'))) else '1';
 
   -- Sets IF/ID register to 0

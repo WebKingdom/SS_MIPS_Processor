@@ -103,14 +103,14 @@ architecture structure of MIPS_Processor is
   signal s_MemToReg_W   : std_logic;
 
   -- Select between sing (1) or zero extended (0) immediate
-  signal s_SelExt     : std_logic;
+  signal s_SelExt_D     : std_logic;
 
   -- Branch enable signal (AND-ed with zero from ALU))
-  signal s_Branch     : std_logic;
-  signal s_Zero       : std_logic;
+  signal s_Branch_D     : std_logic;
+  signal s_Zero_D       : std_logic;
 
   -- Jump signals
-  signal s_Jump       : std_logic;
+  signal s_Jump_D       : std_logic;
   signal s_JumpAL_D   : std_logic;
   signal s_JumpAL_E   : std_logic;
   signal s_JumpAL_M   : std_logic;
@@ -166,7 +166,7 @@ architecture structure of MIPS_Processor is
   signal s_FlushEx    : std_logic;
   signal s_IfIdRst    : std_logic;
   signal s_IdExRst    : std_logic;
-  signal s_EnIfId     : std_logic;
+  -- signal s_EnIfId     : std_logic;
 
 
   component control_unit is
@@ -420,16 +420,16 @@ begin
 
   -- Determine PC input, take decode stage into account
   s_PCin <= (s_JumpRAddr) when (s_JumpR_D = '1') else -- Jump register asserted
-            (s_PCp4_DF) when (s_JumpR_D = '0' and (s_Jump = '1' or s_Branch = '1')) else  -- Jump or branch asserted
+            (s_PCp4_DF) when (s_JumpR_D = '0' and (s_Jump_D = '1' or s_Branch_D = '1')) else  -- Jump or branch asserted
             (s_PCp4_F); -- Increment PC
 
   s_IfIdRst <= iRST or s_FlushId;
 
   -- ID stage:
-  s_EnIfId <= '0' when (s_PCWrite = '0' and s_FlushEx = '1') else '1';
+  -- s_EnIfId <= '0' when (s_PCWrite = '0' and s_FlushEx = '1') else '1';
 
   IF_ID_reg: reg_IF_ID port map(
-    i_EN    => s_EnIfId,
+    i_EN    => s_PCWrite,
     i_CLK   => iCLK,
     i_RST   => s_IfIdRst,
     i_Inst  => s_Inst_F,
@@ -439,8 +439,8 @@ begin
   );
 
   -- PC jump or branch logic in decode stage
-  s_PCp4_DF <= (s_PCp4_D(31 downto 28) & (s_Inst_D(25 downto 0) & "00")) when (s_Jump = '1') else	-- Jump asserted
-               (s_PCp4_D + (s_ImmExt_D(29 downto 0) & "00")) when (s_Branch = '1' and s_Zero = '1' and s_Jump = '0') else	-- Branch asserted
+  s_PCp4_DF <= (s_PCp4_D(31 downto 28) & (s_Inst_D(25 downto 0) & "00")) when (s_Jump_D = '1') else	-- Jump asserted
+               (s_PCp4_D + (s_ImmExt_D(29 downto 0) & "00")) when (s_Branch_D = '1' and s_Zero_D = '1' and s_Jump_D = '0') else	-- Branch asserted
                (s_PCp4_D); -- Keep PC the same (already incremented)
 
   ControlUnit: control_unit port map(
@@ -451,9 +451,9 @@ begin
     o_MemToReg    => s_MemToReg_D,
     o_DMemWr      => s_DMemWr_D,
     o_RegWr       => s_RegWr_D,
-    o_SelExt      => s_SelExt,
-    o_Branch      => s_Branch,
-    o_Jump        => s_Jump,
+    o_SelExt      => s_SelExt_D,
+    o_Branch      => s_Branch_D,
+    o_Jump        => s_Jump_D,
     o_JumpAL      => s_JumpAL_D,
     o_JumpR       => s_JumpR_D,
     o_Halt        => s_Halt_D,
@@ -463,8 +463,8 @@ begin
 
   HazardUnit: hazard_unit port map(
     i_MemRead_E   => s_MemToReg_E,
-    i_Branch      => s_Branch,
-    i_Jump        => s_Jump,
+    i_Branch      => s_Branch_D,
+    i_Jump        => s_Jump_D,
     i_JumpR       => s_JumpR_D,
     i_InstRs_D    => s_Inst_D(25 downto 21),
     i_InstRt_D    => s_Inst_D(20 downto 16),
@@ -488,12 +488,12 @@ begin
     o_Rd_Out1   => s_RegRdOut1_D   -- rt
   );
   -- Data memory write data = reg file read 1
-  s_Zero <= '1' when ((s_RegRdOut0_D = s_RegRdOut1_D) and (s_ALUControl_D = "00101")) else
+  s_Zero_D <= '1' when ((s_RegRdOut0_D = s_RegRdOut1_D) and (s_ALUControl_D = "00101")) else
             '1' when ((s_RegRdOut0_D /= s_RegRdOut1_D) and (s_ALUControl_D = "00111")) else
             '0';
 
   Extender16t32: ext16t32 port map(
-    i_SelExt  => s_SelExt,
+    i_SelExt  => s_SelExt_D,
     i_Val16   => s_Inst_D(15 downto 0),
     o_Val32   => s_ImmExt_D
   );
