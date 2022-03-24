@@ -489,8 +489,8 @@ begin
   );
   -- Data memory write data = reg file read 1
   s_Zero_D <= '1' when ((s_RegRdOut0_D = s_RegRdOut1_D) and (s_ALUControl_D = "00101")) else
-            '1' when ((s_RegRdOut0_D /= s_RegRdOut1_D) and (s_ALUControl_D = "00111")) else
-            '0';
+              '1' when ((s_RegRdOut0_D /= s_RegRdOut1_D) and (s_ALUControl_D = "00111")) else
+              '0';
 
   Extender16t32: ext16t32 port map(
     i_SelExt  => s_SelExt_D,
